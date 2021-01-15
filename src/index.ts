@@ -78,41 +78,25 @@ customizeCra.customBuildConfig = () => (config: any) => {
   return config
 }
 
-customizeCra.customEntryConfig = () => (config:any) => {
-  // const isDev = process.env.NODE_ENV === 'development'
-  // if (!isDev) {
-  //   return config
-  // }
-  const appIndex = path.join(paths.appSrc, 'app')
+customizeCra.customEntryConfig = (entrys?: string|string[]) => (config:any) => {
+  let newEntry = []
 
-  // 增加入口文件
-  config.entry = [appIndex]
+  // 筛除index.ts
+  let oldEntrys = config.entry.filter((e: string) => /react-dev-utils\/webpackHotDevClient\.js$/.test(e))
 
-  // // 修改babel-loader的include
-  // if (!config.module) {
-  //   config.module = {}
-  // }
-  // if (!config.module.rules || !config.module.rules.length) {
-  //   config.module.rules = []
-  // }
-  // for (const item of (config.module.rules.find(rule => Array.isArray(rule.oneOf)).oneOf || [])) {
-  //   if (item.loader && 
-  //       item.loader.indexOf('babel-loader') !== -1 && 
-  //       item.options &&
-  //       item.options.customize &&
-  //       item.options.customize.indexOf('babel-preset-react-app') !== -1
-  //     ) {
-  //       if (!item.include) {
-  //         item.include = []
-  //       }
-  //       if (!Array.isArray(item.include)) {
-  //         item.include = [item.include]
-  //       }
-  //       item.include.push(app)
-  //       item.include.push(appIndex)
-  //   }
-  // }
-
+  // 除了新的入口
+  if (!entrys || !entrys.length) {
+    newEntry.push(path.join(paths.appSrc, 'app'))
+  } else if (Array.isArray(entrys)) {
+    newEntry = entrys
+  } else if (typeof entrys === 'string') {
+    newEntry.push(entrys)
+  }
+  
+  //  参数正确负值
+  if (newEntry.length) {
+    config.entry = oldEntrys.concat(newEntry).filter((e:string) => e)
+  }
   return config
 }
 
